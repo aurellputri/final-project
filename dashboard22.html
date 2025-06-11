@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebGIS Risiko Ganda Banjir-Tsunami Manado</title>
+    
+    <!-- Font & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS -->
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #059669;
+            --danger: #dc2626;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: var(--dark);
+            background-color: var(--light);
+            line-height: 1.6;
+        }
+        
+        /* Header */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logo img {
+            height: 40px;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            bottom: -5px;
+            left: 0;
+            transition: width 0.3s;
+        }
+        
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('assets/img/manado-hero.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            padding: 0 5%;
+            margin-top: 80px;
+            color: white;
+        }
+        
+        .hero-content {
+            max-width: 600px;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        
+        .hero p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.8rem;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: 2px solid var(--primary);
+        }
+        
+        .btn:hover {
+            background-color: transparent;
+            color: white;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid white;
+            margin-left: 1rem;
+        }
+        
+        .btn-outline:hover {
+            background-color: white;
+            color: var(--primary);
+        }
+        
+        /* Map Dashboard Section */
+        .map-section {
+            padding: 5rem 5%;
+            background-color: white;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .section-header h2 {
+            font-size: 2.2rem;
+            color: var(--dark);
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-header h2::after {
+            content: '';
+            position: absolute;
+            width: 50%;
+            height: 4px;
+            background: var(--primary);
+            bottom: -10px;
+            left: 25%;
+            border-radius: 2px;
+        }
+        
+        .section-header p {
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .map-container {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            height: 700px;
+        }
+        
+        .map-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        /* Risk Factors Section */
+        .risk-factors {
+            padding: 5rem 5%;
+            background-color: #f1f5f9;
+        }
+        
+        .factors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .factor-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .factor-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .factor-img {
+            height: 200px;
+            overflow: hidden;
+        }
+        
+        .factor-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+        
+        .factor-card:hover .factor-img img {
+            transform: scale(1.1);
+        }
+        
+        .factor-content {
+            padding: 1.5rem;
+        }
+        
+        .factor-content h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+        
+        .factor-content p {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+        
+        /* Mitigation Section */
+        .mitigation {
+            padding: 5rem 5%;
+            background-color: white;
+        }
+        
+        .mitigation-steps {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-top: 3rem;
+            justify-content: center;
+        }
+        
+        .step {
+            flex: 1;
+            min-width: 250px;
+            max-width: 350px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 2rem 1.5rem;
+            background-color: #f8fafc;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        
+        .step:hover {
+            background-color: var(--primary);
+            color: white;
+            transform: translateY(-5px);
+        }
+        
+        .step:hover .step-icon {
+            background-color: white;
+            color: var(--primary);
+        }
+        
+        .step:hover p {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .step-icon {
+            width: 70px;
+            height: 70px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+        }
+        
+        .step h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .step p {
+            color: var(--gray);
+            font-size: 0.95rem;
+            transition: color 0.3s;
+        }
+        
+        /* Impact Section */
+        .impact {
+            padding: 5rem 5%;
+            background-color: #f1f5f9;
+        }
+        
+        .impact-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+        
+        .impact-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border-top: 4px solid var(--primary);
+            transition: transform 0.3s;
+        }
+        
+        .impact-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .impact-card.danger {
+            border-top-color: var(--danger);
+        }
+        
+        .impact-card.secondary {
+            border-top-color: var(--secondary);
+        }
+        
+        .impact-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .impact-card h3 i {
+            font-size: 1.5rem;
+        }
+        
+        .impact-card p {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+        
+        /* FAQ Section */
+        .faq {
+            padding: 5rem 5%;
+            background-color: white;
+        }
+        
+        .faq-container {
+            max-width: 800px;
+            margin: 3rem auto 0;
+        }
+        
+        .faq-item {
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .faq-question {
+            padding: 1.5rem;
+            background-color: #f8fafc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .faq-question i {
+            transition: transform 0.3s;
+        }
+        
+        .faq-answer {
+            padding: 0 1.5rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease;
+        }
+        
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+        
+        .faq-item.active .faq-answer {
+            padding: 1.5rem;
+            max-height: 500px;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 5rem 5% 2rem;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+        
+        .footer-col h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .footer-col h3::after {
+            content: '';
+            position: absolute;
+            width: 50px;
+            height: 3px;
+            background: var(--primary);
+            bottom: 0;
+            left: 0;
+        }
+        
+        .footer-col p {
+            opacity: 0.8;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+        
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.95rem;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: white;
+            transition: all 0.3s;
+        }
+        
+        .social-links a:hover {
+            background-color: var(--primary);
+            transform: translateY(-3px);
+        }
+        
+        .newsletter input {
+            width: 100%;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .newsletter input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .newsletter button {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .newsletter button:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .nav-links {
+                gap: 1.5rem;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .nav-links {
+                position: fixed;
+                top: 80px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 80px);
+                background-color: white;
+                flex-direction: column;
+                align-items: center;
+                padding: 2rem 0;
+                transition: left 0.3s;
+                gap: 1.5rem;
+            }
+            
+            .nav-links.active {
+                left: 0;
+            }
+            
+            .hero {
+                text-align: center;
+            }
+            
+            .hero-content {
+                margin: 0 auto;
+            }
+            
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .btn-group {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .btn-outline {
+                margin-left: 0;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .section-header h2 {
+                font-size: 1.8rem;
+            }
+            
+            .factor-card, .step {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            <img src="assets/img/wave-icon.png" alt="Risiko Bencana Icon">
+            <h1>RisikoGanda.Manado</h1>
+        </div>
+        
+        <div class="nav-links">
+            <a href="#home">Beranda</a>
+            <a href="#risiko">Profil Risiko</a>
+            <a href="#peta">Peta Interaktif</a>
+            <a href="#mitigasi">Mitigasi</a>
+            <a href="#faq">FAQ</a>
+            <a href="#kontak">Kontak</a>
+        </div>
+        
+        <div class="mobile-menu-btn">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>Pemetaan Risiko Ganda Banjir & Tsunami di Manado</h1>
+            <p>Analisis spasial terintegrasi untuk memahami dan memitigasi risiko bencana ganda di wilayah pesisir Kota Manado, Sulawesi Utara.</p>
+            <div class="btn-group">
+                <a href="#peta" class="btn">Lihat Peta</a>
+                <a href="#risiko" class="btn btn-outline">Pelajari Risiko</a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Map Dashboard Section -->
+    <section class="map-section" id="peta">
+        <div class="section-header">
+            <h2>Peta Interaktif Risiko Ganda</h2>
+            <p>Eksplorasi peta digital untuk melihat sebaran wilayah dengan tingkat kerentanan tinggi terhadap kombinasi bahaya banjir dan tsunami</p>
+        </div>
+        
+        <div class="map-container">
+            <iframe src="http://localhost:7090/mapstore/dashboard-embedded.html#/77"></iframe>
+        </div>
+    </section>
+    
+    <!-- Risk Factors Section -->
+    <section class="risk-factors" id="risiko">
+        <div class="section-header">
+            <h2>Faktor Penyebab Risiko Ganda</h2>
+            <p>Beberapa faktor utama yang meningkatkan kerentanan Manado terhadap bencana ganda banjir dan tsunami</p>
+        </div>
+        
+        <div class="factors-grid">
+            <div class="factor-card">
+                <div class="factor-img">
+                    <img src="assets/img/geografis-manado.jpg" alt="Letak Geografis">
+                </div>
+                <div class="factor-content">
+                    <h3>Letak Geografis</h3>
+                    <p>Manado terletak di tepi pantai dengan topografi bervariasi dari dataran rendah hingga perbukitan, meningkatkan kerentanan terhadap kedua bencana.</p>
+                </div>
+            </div>
+            
+            <div class="factor-card">
+                <div class="factor-img">
+                    <img src="assets/img/curah-hujan.jpg" alt="Curah Hujan Ekstrem">
+                </div>
+                <div class="factor-content">
+                    <h3>Curah Hujan Ekstrem</h3>
+                    <p>Curah hujan tinggi di musim penghujan menyebabkan banjir, sementara daerah pesisir tetap rentan terhadap tsunami.</p>
+                </div>
+            </div>
+            
+            <div class="factor-card">
+                <div class="factor-img">
+                    <img src="assets/img/gempa.jpg" alt="Aktivitas Seismik">
+                </div>
+                <div class="factor-content">
+                    <h3>Aktivitas Seismik</h3>
+                    <p>Posisi Manado dekat zona subduksi Sulawesi Utara meningkatkan potensi gempa dan tsunami.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Mitigation Section -->
+    <section class="mitigation" id="mitigasi">
+        <div class="section-header">
+            <h2>Strategi Mitigasi Terpadu</h2>
+            <p>Upaya komprehensif untuk mengurangi risiko bencana ganda melalui pendekatan multidisiplin</p>
+        </div>
+        
+        <div class="mitigation-steps">
+            <div class="step">
+                <div class="step-icon">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <h3>Pemetaan Zona Risiko</h3>
+                <p>Pengembangan peta risiko terpadu yang mengintegrasikan zona rawan banjir dan tsunami untuk perencanaan tata ruang.</p>
+            </div>
+            
+            <div class="step">
+                <div class="step-icon">
+                    <i class="fas fa-building-shield"></i>
+                </div>
+                <h3>Infrastruktur Tahan Bencana</h3>
+                <p>Pembangunan infrastruktur yang tahan terhadap banjir dan tsunami seperti tanggul, sistem drainase, dan bangunan evakuasi.</p>
+            </div>
+            
+            <div class="step">
+                <div class="step-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <h3>Sistem Peringatan Dini</h3>
+                <p>Pengembangan sistem peringatan dini terintegrasi untuk banjir dan tsunami dengan teknologi terkini.</p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Impact Section -->
+    <section class="impact">
+        <div class="section-header">
+            <h2>Dampak Bencana Ganda</h2>
+            <p>Kombinasi banjir dan tsunami dapat menimbulkan efek yang lebih parah dibandingkan masing-masing bencana secara terpisah</p>
+        </div>
+        
+        <div class="impact-cards">
+            <div class="impact-card danger">
+                <h3><i class="fas fa-house-flood-water"></i> Kerusakan Infrastruktur</h3>
+                <p>Banjir yang terjadi sebelum tsunami dapat melemahkan struktur bangunan, membuatnya lebih rentan terhadap hantaman gelombang tsunami.</p>
+            </div>
+            
+            <div class="impact-card">
+                <h3><i class="fas fa-people-roof"></i> Hambatan Evakuasi</h3>
+                <p>Bencana ganda akan mempersulit upaya evakuasi karena jalur evakuasi mungkin sudah terendam banjir sebelum tsunami datang.</p>
+            </div>
+            
+            <div class="impact-card secondary">
+                <h3><i class="fas fa-virus"></i> Krisis Kesehatan</h3>
+                <p>Kombinasi air banjir yang sudah kotor dengan air laut tsunami menciptakan kondisi ideal untuk penyebaran penyakit menular.</p>
+            </div>
+            
+            <div class="impact-card">
+                <h3><i class="fas fa-seedling"></i> Kerusakan Lingkungan</h3>
+                <p>Air banjir yang bercampur dengan air laut tsunami menciptakan lingkungan yang sangat korosif dan merusak bagi ekosistem.</p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- FAQ Section -->
+    <section class="faq" id="faq">
+        <div class="section-header">
+            <h2>Pertanyaan Umum</h2>
+            <p>Beberapa pertanyaan yang sering diajukan tentang risiko bencana ganda di Manado</p>
+        </div>
+        
+        <div class="faq-container">
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Apa yang dimaksud dengan risiko bencana ganda?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Risiko bencana ganda mengacu pada potensi suatu wilayah mengalami dua atau lebih bencana secara bersamaan atau berurutan yang saling memperparah dampaknya. Dalam konteks Manado, kombinasi banjir dan tsunami menjadi fokus karena keduanya memiliki mekanisme berbeda tetapi sama-sama berbahaya bagi wilayah pesisir.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Bagaimana cara membaca peta risiko ganda ini?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Peta risiko menggunakan warna untuk menunjukkan tingkat kerentanan: Merah (sangat tinggi), Oranye (tinggi), Kuning (sedang), dan Hijau (rendah). Area yang memiliki warna lebih panas menunjukkan wilayah dengan risiko lebih besar terhadap dampak kombinasi banjir dan tsunami. Anda dapat mengklik area tertentu untuk melihat detail informasi.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Apa yang harus dilakukan jika tinggal di zona risiko tinggi?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Jika tinggal di zona risiko tinggi: (1) Ketahui rute evakuasi terdekat untuk kedua bencana, (2) Siapkan tas darurat yang mudah dibawa, (3) Ikuti pelatihan kesiapsiagaan bencana, (4) Pasang sistem peringatan sederhana di rumah, (5) Berkoordinasi dengan RT/RW setempat untuk rencana kontinjensi, dan (6) Pertimbangkan untuk relokasi jika memungkinkan.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer id="kontak">
+        <div class="footer-content">
+            <div class="footer-col">
+                <h3>Tentang Kami</h3>
+                <p>Platform WebGIS untuk pemetaan dan analisis risiko bencana ganda banjir-tsunami di Kota Manado, Sulawesi Utara.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-col">
+                <h3>Link Cepat</h3>
+                <ul class="footer-links">
+                    <li><a href="#home">Beranda</a></li>
+                    <li><a href="#risiko">Profil Risiko</a></li>
+                    <li><a href="#peta">Peta Interaktif</a></li>
+                    <li><a href="#mitigasi">Strategi Mitigasi</a></li>
+                    <li><a href="#faq">FAQ</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-col">
+                <h3>Mitra</h3>
+                <ul class="footer-links">
+                    <li><a href="#">BPBD Manado</a></li>
+                    <li><a href="#">Badan Geologi</a></li>
+                    <li><a href="#">BMKG</a></li>
+                    <li><a href="#">BIG</a></li>
+                    <li><a href="#">BNPB</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-col">
+                <h3>Newsletter</h3>
+                <p>Berlangganan newsletter kami untuk mendapatkan update terbaru tentang risiko bencana di Manado.</p>
+                <form class="newsletter">
+                    <input type="email" placeholder="Alamat Email Anda">
+                    <button type="submit">Berlangganan</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2025 RisikoGanda.Manado. Hak Cipta Dilindungi.</p>
+        </div>
+    </footer>
+    
+    <!-- JavaScript -->
+    <script>
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const navLinks = document.querySelector('.nav-links');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+        
+        // Close mobile menu when clicking on a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+            });
+        });
+        
+        // FAQ Accordion
+        const faqItems = document.querySelectorAll('.faq-item');
+        
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question');
+            
+            question.addEventListener('click', () => {
+                // Close other open items
+                faqItems.forEach(otherItem => {
+                    if (otherItem !== item && otherItem.classList.contains('active')) {
+                        otherItem.classList.remove('active');
+                    }
+                });
+                
+                // Toggle current item
+                item.classList.toggle('active');
+            });
+        });
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
